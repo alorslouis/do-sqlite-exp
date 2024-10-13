@@ -21,6 +21,16 @@ class_name = "MyDurableObject"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["MyDurableObject"]
+[[durable_objects.bindings]]
+
+name = "SQLITE_TEST"
+class_name = "SqliteTestClass"
+
+# Durable Object migrations.
+# Docs: https://developers.cloudflare.com/workers/wrangler/configuration/#migrations
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SqliteTestClass"]
 
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Worker, running it closer to your back-end infrastructure
