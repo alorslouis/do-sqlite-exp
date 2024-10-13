@@ -182,6 +182,7 @@ export default {
 
 		const urlPath = new URL(request.url).pathname
 
+		console.log({ urlPath })
 		if (urlPath.includes("seats")) {
 
 			const room = urlPath.split("/").filter(x => x.length)
@@ -196,17 +197,45 @@ export default {
 
 			console.log({ method })
 
-			const roomId = room[room.length - 1]
+			const flightId = room[room.length - 1]
 
-			if (roomId === "seats") {
-				throw new Error("incorrect!")
-			}
-
-			let id: DurableObjectId = env.SQLITE_TEST.idFromName(roomId);
+			let id: DurableObjectId = env.SQLITE_TEST.idFromName(flightId);
 
 			let planeStub = env.SQLITE_TEST.get(id);
 
+			if (method === "assign") {
+				const querPs = Object.fromEntries(new URL(request.url).searchParams)
 
+				const pl = seatList.safeParse(querPs)
+
+				interface AssignResponse {
+					result: "success" | "fail"
+					seat?: SeatList
+					flight?: string
+				}
+
+				let resultObj: AssignResponse = {
+					result: "fail"
+				}
+
+				if (pl.success) {
+					try {
+						await planeStub.assignSeat({ ...pl.data })
+						resultObj = {
+							result: "success",
+							seat: pl.data,
+							flight: flightId
+						}
+						return Response.json(resultObj)
+
+					} catch (error) {
+						console.error(error)
+						return Response.json(resultObj)
+					}
+				}
+
+				return Response.json(resultObj)
+			}
 
 			try {
 				const availableRows = await planeStub.getAvailable()
