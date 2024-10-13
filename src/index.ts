@@ -56,9 +56,14 @@ export default {
 		// The Durable Object constructor will be invoked upon the first call for a given id
 		let stub = env.MY_DURABLE_OBJECT.get(id);
 
+		const cfc = request.cf?.city
+
+		const cfcLatLong = `${request.cf?.latitude}, ${request.cf?.longitude}`
+
 		// We call the `sayHello()` RPC method on the stub to invoke the method on the remote
 		// Durable Object instance
-		let greeting = await stub.sayHello("world");
+		const greetingFormat = cfc && cfcLatLong ? `${cfc}\t${cfcLatLong}` : "world"
+		let greeting = await stub.sayHello(greetingFormat);
 
 		return new Response(greeting);
 	},
